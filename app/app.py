@@ -3,6 +3,7 @@ import numpy as np
 import joblib
 import os
 
+# ===================== LOAD MODEL (SAFE PATH) =====================
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 model = joblib.load(os.path.join(BASE_DIR, "../models/model.pkl"))
@@ -10,9 +11,9 @@ scaler = joblib.load(os.path.join(BASE_DIR, "../models/scaler.pkl"))
 
 # ===================== PAGE CONFIG =====================
 st.set_page_config(
-    page_title="Predictive Maintenance",
+    page_title="Predictive Maintenance Dashboard",
     page_icon="⚙️",
-    layout="centered"
+    layout="wide"
 )
 
 # ===================== CUSTOM CSS =====================
@@ -35,97 +36,95 @@ h1, h2, h3 {
 .stButton>button:hover {
     background: linear-gradient(90deg, #3b82f6, #06b6d4);
 }
+[data-testid="stSidebar"] {
+    background: linear-gradient(180deg, #020617, #0f172a);
+}
 </style>
 """, unsafe_allow_html=True)
 
 # ===================== HEADER =====================
 st.markdown("""
-<h1 style='text-align: center;'>⚙️ Predictive Maintenance</h1>
-<p style='text-align: center; font-size:18px;'>
-AI-powered Machine Failure Detection System
-</p>
+<h1 style='text-align: center;'>⚙️ Predictive Maintenance Dashboard</h1>
+<p style='text-align: center;'>AI-powered Machine Failure Prediction System</p>
 <hr>
 """, unsafe_allow_html=True)
 
-# ===================== INPUT SECTION =====================
-st.markdown("### 🛠️ Enter Machine Parameters")
+# ===================== SIDEBAR =====================
+st.sidebar.title("⚙️ Control Panel")
+st.sidebar.markdown("### Adjust Machine Parameters")
 
-col1, col2 = st.columns(2)
+# All inputs as sliders
+air_temp = st.sidebar.slider("Air Temperature (K)", 250.0, 350.0, 300.0)
+process_temp = st.sidebar.slider("Process Temperature (K)", 250.0, 350.0, 310.0)
+rpm = st.sidebar.slider("Rotational Speed (RPM)", 1000, 3000, 1500)
+torque = st.sidebar.slider("Torque (Nm)", 0.0, 100.0, 40.0)
+tool_wear = st.sidebar.slider("Tool Wear (min)", 0, 300, 10)
 
-with col1:
-    air_temp = st.number_input("Air Temperature (K)", value=300.0)
-    rpm = st.number_input("Rotational Speed (RPM)", value=1500)
-
-with col2:
-    process_temp = st.number_input("Process Temperature (K)", value=310.0)
-    torque = st.number_input("Torque (Nm)", value=40.0)
-
-tool_wear = st.slider("Tool Wear (min)", 0, 300, 10)
-
-# 🔥 IMPORTANT FIX (6th feature)
-machine_type = st.selectbox("Machine Type", ["L", "M"])
+machine_type = st.sidebar.selectbox("Machine Type", ["L", "M"])
 type_M = 1 if machine_type == "M" else 0
 
-st.markdown("---")
+predict_btn = st.sidebar.button("🚀 Predict Status")
 
-# ===================== PREDICTION =====================
-if st.button("🚀 Predict Machine Status"):
+# ===================== MAIN CONTENT =====================
+col1, col2 = st.columns([2, 1])
 
-    # Correct feature order
-    input_data = np.array([[ 
-        air_temp,
-        process_temp,
-        rpm,
-        torque,
-        tool_wear,
-        type_M
-    ]])
+with col1:
+    st.subheader("📊 Machine Status")
 
-    # Scaling
-    input_scaled = scaler.transform(input_data)
+    if predict_btn:
 
-    # Prediction
-    prediction = model.predict(input_scaled)[0]
-    probability = model.predict_proba(input_scaled)[0][1]
+        input_data = np.array([[ 
+            air_temp,
+            process_temp,
+            rpm,
+            torque,
+            tool_wear,
+            type_M
+        ]])
 
-    st.markdown("## 📊 Prediction Result")
+        input_scaled = scaler.transform(input_data)
 
-    if prediction == 1:
-        st.markdown(f"""
-        <div style="padding:20px; border-radius:10px; background-color:#7f1d1d;">
-            <h3>⚠️ High Risk of Machine Failure</h3>
-            <p>Confidence: {probability:.2f}</p>
-        </div>
-        """, unsafe_allow_html=True)
+        prediction = model.predict(input_scaled)[0]
+        probability = model.predict_proba(input_scaled)[0][1]
+
+        if prediction == 1:
+            st.error(f"⚠️ High Risk of Machine Failure\n\nConfidence: {probability:.2f}")
+        else:
+            st.success(f"✅ Machine Operating Normally\n\nConfidence: {1 - probability:.2f}")
+
+        # Progress bar
+        st.progress(float(probability))
+
     else:
-        st.markdown(f"""
-        <div style="padding:20px; border-radius:10px; background-color:#064e3b;">
-            <h3>✅ Machine Operating Normally</h3>
-            <p>Confidence: {1 - probability:.2f}</p>
-        </div>
-        """, unsafe_allow_html=True)
+        st.info("Adjust parameters from sidebar and click Predict 🚀")
 
 # ===================== FEATURE IMPORTANCE =====================
-if st.checkbox("📈 Show Feature Importance"):
-    import pandas as pd
+with col2:
+    st.subheader("📈 Feature Importance")
 
-    importance = model.feature_importances_
+    try:
+        importance = model.feature_importances_
 
-    features = [
-        "Air Temp",
-        "Process Temp",
-        "RPM",
-        "Torque",
-        "Tool Wear",
-        "Type_M"
-    ]
+        features = [
+            "Air Temp",
+            "Process Temp",
+            "RPM",
+            "Torque",
+            "Tool Wear",
+            "Type_M"
+        ]
 
-    df_imp = pd.DataFrame({
-        "Feature": features,
-        "Importance": importance
-    }).sort_values(by="Importance", ascending=False)
+        import pandas as pd
 
-    st.bar_chart(df_imp.set_index("Feature"))
+        df_imp = pd.DataFrame({
+            "Feature": features,
+            "Importance": importance
+        }).sort_values(by="Importance", ascending=False)
+
+        st.bar_chart(df_imp.set_index("Feature"))
+
+    except:
+        st.warning("Feature importance not available")
 
 # ===================== FOOTER =====================
 st.markdown("---")
