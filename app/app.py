@@ -1,11 +1,12 @@
 import streamlit as st
 import numpy as np
 import joblib
+import os
 
-# ===================== LOAD MODEL =====================
-model = joblib.load("../models/model.pkl")
-scaler = joblib.load("../models/scaler.pkl")
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
+model = joblib.load(os.path.join(BASE_DIR, "../models/model.pkl"))
+scaler = joblib.load(os.path.join(BASE_DIR, "../models/scaler.pkl"))
 
 # ===================== PAGE CONFIG =====================
 st.set_page_config(
