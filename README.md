@@ -1,40 +1,64 @@
-# 🔧 AI Predictive Maintenance System
+# 🔧 Predictive Maintenance System
 
-This project predicts machine failures using Machine Learning (XGBoost) and provides a real-time dashboard using Streamlit.
+## 📌 Problem Statement
 
----
-
-## 🚀 Features
-
-- Predict machine failure probability
-- Real-time interactive dashboard
-- High recall model (safety-focused)
-- Industrial use-case implementation
+Industrial machines ka sudden failure companies ke liye huge loss create karta hai.
+Is project ka goal hai **machine failure ko pehle hi predict karna** using Machine Learning.
 
 ---
 
-## 🧠 Model Details
+## 🚀 Solution
 
-- Algorithm: XGBoost
-- ROC-AUC: ~0.97
-- Recall (Failure): ~0.96
-- Optimized for minimizing missed failures
-
----
-
-## 📊 Input Features
-
-- Air Temperature
-- Process Temperature
-- Rotational Speed
-- Torque
-- Tool Wear
-- Machine Type (L, M, H)
+* Machine sensor data ka analysis
+* ML model train kiya failure predict karne ke liye
+* Streamlit web app banaya real-time prediction ke liye
 
 ---
 
-## ▶️ Run Locally
+## 🧠 Tech Stack
+
+* Python
+* Pandas, NumPy
+* Scikit-Learn
+* Streamlit
+
+---
+
+## ⚙️ Features
+
+✔ Real-time prediction
+✔ Clean user interface
+✔ Scalable ML pipeline
+
+---
+
+## 📊 Workflow
+
+1. Data Cleaning
+2. Feature Engineering
+3. Model Training
+4. Model Evaluation
+5. Deployment (Streamlit)
+
+---
+
+## 🖥️ How to Run
 
 ```bash
+git clone <repo-link>
+cd project-folder
 pip install -r requirements.txt
 streamlit run app.py
+```
+
+---
+
+## 🎯 Use Cases
+
+* Manufacturing Industry
+* Equipment Monitoring
+* Predictive Analytics Systems
+
+---
+
+⭐ If you like this project, give it a star!
