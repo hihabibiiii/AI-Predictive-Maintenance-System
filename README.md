@@ -1,5 +1,6 @@
 # 🔧 Predictive Maintenance System
-
+Live Preview
+https://ai-predictive-maintenance-system-z4zlzapph4ebjsqprywebnn.streamlit.app/
 ## 📌 Problem Statement
 
 Industrial machines ka sudden failure companies ke liye huge loss create karta hai.
